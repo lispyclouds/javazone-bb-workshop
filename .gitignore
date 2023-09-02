@@ -3,5 +3,6 @@
 target/
 .nrepl-port
 lambda.zip
+runtime_layer.zip
 .terraform/
 *.tfstate*

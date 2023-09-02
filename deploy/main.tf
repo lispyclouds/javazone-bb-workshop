@@ -1,6 +1,13 @@
 locals {
   lambda_filename = "../lambda.zip"
   lambda_name     = "no-pii"
+  lambda_layer_filename = "../runtime_layer.zip"
+  runtimes = [
+    "provided",
+  ]
+  architectures = [
+    "x86_64",
+  ]
 }
 
 resource "aws_iam_role" "no_pii" {
@@ -20,6 +27,14 @@ resource "aws_iam_role" "no_pii" {
   })
 }
 
+resource "aws_lambda_layer_version" "bb" {
+  layer_name               = "bb"
+  source_code_hash         = filebase64sha256(local.lambda_layer_filename)
+  compatible_architectures = local.architectures
+  compatible_runtimes      = local.runtimes
+  filename                 = local.lambda_layer_filename
+}
+
 resource "aws_lambda_function" "lambda" {
   function_name = local.lambda_name
   role          = aws_iam_role.no_pii.arn
@@ -30,8 +45,10 @@ resource "aws_lambda_function" "lambda" {
 
   filename = local.lambda_filename
 
-  runtime = "provided"
-  architectures = [
-    "x86_64",
+  runtime = local.runtimes[0]
+  architectures = local.architectures
+
+  layers = [
+    aws_lambda_layer_version.bb.arn,
   ]
 }
