@@ -15,4 +15,6 @@
                :extra-deps {io.github.cognitect-labs/test-runner
                             {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
                :task (exec 'cognitect.test-runner.api/test)
-               :exec-args {:dirs ["test"]}}}}
+               :exec-args {:dirs ["test"]}}
+         deploy (do (shell {:dir "deploy"} "terraform init")
+                    (shell {:dir "deploy"} "terraform apply"))}}
