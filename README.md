@@ -12,6 +12,7 @@ This builds, tests and deploys a simple AWS Lambda.
 
 ## Usage
 
+- Run unit tests: `bb test`
 - Clean and build the Lambda: `bb clean && bb pack`
 - [Optional] deploy to AWS:
   - `cd deploy`
