@@ -35,7 +35,7 @@ resource "aws_lambda_layer_version" "bb" {
   filename                 = local.lambda_layer_filename
 }
 
-resource "aws_lambda_function" "lambda" {
+resource "aws_lambda_function" "no_pii" {
   function_name = local.lambda_name
   role          = aws_iam_role.no_pii.arn
 

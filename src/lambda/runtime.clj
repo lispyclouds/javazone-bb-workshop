@@ -1,21 +1,28 @@
 (ns lambda.runtime
-  "Integration with the AWS Lambda runtime API,
-  see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html"
   (:require [babashka.http-client :as http]
             [cheshire.core :as json]))
 
-(defn- get-lambda-invocation-request [runtime-api]
-  (http/get (str "http://" runtime-api "/2018-06-01/runtime/invocation/next") {:timeout 900000}))
+;; BAD things happen if you timeout
+(def MASSIVE_TIMEOUT_MS (* 1000 60 60 24))
 
-(defn- send-response [runtime-api lambda-runtime-aws-request-id response-body]
-  (http/post (str "http://" runtime-api "/2018-06-01/runtime/invocation/" lambda-runtime-aws-request-id "/response")
-             {:body response-body :headers {"Content-Type" "application/json"}}))
+(defn- next-invocation-request
+  [url]
+  (http/get (str url "/next") {:timeout MASSIVE_TIMEOUT_MS}))
 
-(defn- send-error [runtime-api lambda-runtime-aws-request-id error-body]
-  (http/post (str "http://" runtime-api "/2018-06-01/runtime/invocation/" lambda-runtime-aws-request-id "/error")
-             {:body error-body :headers {"Content-Type" "application/json"}}))
+(defn- send-response
+  [url lambda-runtime-aws-request-id response-body]
+  (http/post (str url "/" lambda-runtime-aws-request-id "/response")
+             {:body response-body
+              :headers {"Content-Type" "application/json"}}))
 
-(defn- request->response [request-body handler-fn]
+(defn- send-error
+  [url lambda-runtime-aws-request-id error-body]
+  (http/post (str url "/" lambda-runtime-aws-request-id "/error")
+             {:body error-body
+              :headers {"Content-Type" "application/json"}}))
+
+(defn- request->response
+  [request-body handler-fn]
   (let [decoded-request (json/decode request-body true)]
     (if-let [body (:body decoded-request)]
       (json/encode
@@ -23,20 +30,21 @@
         :body (json/encode (handler-fn (json/decode body true)))})
       (json/encode (handler-fn decoded-request)))))
 
-(defn init [handler-fn]
-  (let [runtime-api (System/getenv "AWS_LAMBDA_RUNTIME_API")]
-    (loop [req (get-lambda-invocation-request runtime-api)]
+(defn init
+  [handler-fn]
+  (let [url (str "http://" (System/getenv "AWS_LAMBDA_RUNTIME_API") "/2018-06-01/runtime/invocation")]
+    (loop [req (next-invocation-request url)]
       (let [lambda-runtime-aws-request-id (-> req :headers (get "lambda-runtime-aws-request-id"))]
         (when-let [error (get req :error)]
-          (send-error runtime-api lambda-runtime-aws-request-id (str error))
+          (send-error url lambda-runtime-aws-request-id (str error))
           (throw (Exception. (str error))))
         (try
-          (send-response runtime-api
+          (send-response url
                          lambda-runtime-aws-request-id
                          (request->response (get req :body) handler-fn))
           (catch Exception e
-            (send-error runtime-api lambda-runtime-aws-request-id (str e)))))
-      (recur (get-lambda-invocation-request runtime-api)))))
+            (send-error url lambda-runtime-aws-request-id (str e)))))
+      (recur (next-invocation-request url)))))
 
 (comment
   (http/get "https://postman-echo.com/get"))
