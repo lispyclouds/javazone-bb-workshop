@@ -3,11 +3,11 @@
             [cheshire.core :as json]))
 
 ;; BAD things happen if you timeout
-(def MASSIVE_TIMEOUT_MS (* 1000 60 60 24))
+(def massive-timeout-ms (* 1000 60 60 24))
 
 (defn- next-invocation-request
   [url]
-  (http/get (str url "/next") {:timeout MASSIVE_TIMEOUT_MS}))
+  (http/get (str url "/next") {:timeout massive-timeout-ms}))
 
 (defn- send-response
   [url lambda-runtime-aws-request-id response-body]
