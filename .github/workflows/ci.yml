@@ -1,0 +1,36 @@
+name: Tests
+
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v3"
+
+      - name: "Prepare Java"
+        uses: "actions/setup-java@v3"
+        with:
+          distribution: "temurin"
+          java-version: "20"
+
+      - name: "Prepare bb"
+        uses: "DeLaGuardo/setup-clojure@master"
+        with:
+          bb: "latest"
+
+      - name: "Apply Cache"
+        uses: "actions/cache@v3"
+        with:
+          path: |
+            ~/.m2/repository
+          key: "lambda-${{ hashFiles('bb.edn') }}"
+          restore-keys: "$lambda-"
+
+      - name: "Run bb tests"
+        run: "bb test"
