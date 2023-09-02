@@ -1,0 +1,7 @@
+.clj-kondo/
+.lsp/
+target/
+.nrepl-port
+lambda.zip
+.terraform/
+*.tfstate*

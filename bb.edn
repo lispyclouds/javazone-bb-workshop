@@ -1,0 +1,9 @@
+{:paths ["src"]
+ :tasks {:requires ([babashka.fs :as fs])
+         pack (do (fs/create-dirs "target")
+                  (shell "bb uberscript target/function.clj -m lambda.main")
+                  (fs/copy (fs/which "bb") "target/bb" {:replace-existing true})
+                  (fs/copy "resources/bootstrap" "target/bootstrap" {:replace-existing true})
+                  (fs/zip "lambda.zip" "target" {:root "target"}))
+         clean (do (fs/delete-tree "target")
+                   (fs/delete-if-exists "lambda.zip"))}}
