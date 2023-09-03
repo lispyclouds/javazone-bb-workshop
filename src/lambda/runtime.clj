@@ -22,26 +22,26 @@
               :headers {"Content-Type" "application/json"}}))
 
 (defn- request->response
-  [request-body handler-fn]
+  [headers request-body handler-fn]
   (let [decoded-request (json/decode request-body true)]
     (if-let [body (:body decoded-request)]
       (json/encode
        {:statusCode 200
-        :body (json/encode (handler-fn (json/decode body true)))})
-      (json/encode (handler-fn decoded-request)))))
+        :body (json/encode (handler-fn (json/decode body true) headers))})
+      (json/encode (handler-fn decoded-request headers)))))
 
 (defn init
   [handler-fn]
   (let [url (str "http://" (System/getenv "AWS_LAMBDA_RUNTIME_API") "/2018-06-01/runtime/invocation")]
-    (loop [req (next-invocation-request url)]
-      (let [lambda-runtime-aws-request-id (-> req :headers (get "lambda-runtime-aws-request-id"))]
-        (when-let [error (get req :error)]
+    (loop [{:keys [headers body error]} (next-invocation-request url)]
+      (let [lambda-runtime-aws-request-id (get headers "lambda-runtime-aws-request-id")]
+        (when error
           (send-error url lambda-runtime-aws-request-id (str error))
           (throw (Exception. (str error))))
         (try
           (send-response url
                          lambda-runtime-aws-request-id
-                         (request->response (get req :body) handler-fn))
+                         (request->response headers body handler-fn))
           (catch Exception e
             (send-error url lambda-runtime-aws-request-id (str e)))))
       (recur (next-invocation-request url)))))

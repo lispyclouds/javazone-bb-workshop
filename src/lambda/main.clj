@@ -3,7 +3,7 @@
    [lambda.runtime :as runtime]))
 
 (defn process
-  [{:keys [n1 n2]}]
+  [{:keys [n1 n2]} _context]
   {:sum (+ n1 n2)})
 
 (defn -main
