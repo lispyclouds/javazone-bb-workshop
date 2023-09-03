@@ -2,10 +2,10 @@
   (:require
    [lambda.runtime :as runtime]))
 
-(defn process
+(defn handler
   [{:keys [n1 n2]} _context]
   {:sum (+ n1 n2)})
 
 (defn -main
   [& _]
-  (runtime/init process))
+  (runtime/init handler))

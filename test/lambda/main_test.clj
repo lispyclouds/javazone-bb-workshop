@@ -4,4 +4,4 @@
 
 (deftest process-test
   (testing "can process correctly"
-    (is (= {:sum 9} (m/process {:n1 4 :n2 5} {})))))
+    (is (= {:sum 9} (m/handler {:n1 4 :n2 5} {})))))
