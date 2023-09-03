@@ -1,7 +1,7 @@
 locals {
-  lambda_filename = "../lambda.zip"
+  lambda_filename = "lambda.zip"
   lambda_name     = "no-pii"
-  lambda_layer_filename = "../runtime_layer.zip"
+  lambda_layer_filename = "runtime_layer.zip"
   runtimes = [
     "provided",
   ]

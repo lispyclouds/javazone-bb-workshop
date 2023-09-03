@@ -1,19 +1,22 @@
 {:paths ["src"]
  :tasks {:requires ([babashka.fs :as fs])
+         :init (do
+                 (def lambda-file "deploy/lambda.zip")
+                 (def layer-file "deploy/runtime_layer.zip"))
          clean {:doc "Cleans the project artifacts"
                 :task (do (fs/delete-tree "target")
-                          (fs/delete-if-exists "lambda.zip")
-                          (fs/delete-if-exists "runtime_layer.zip"))}
+                          (fs/delete-if-exists lambda-file)
+                          (fs/delete-if-exists layer-file))}
          pack {:doc "Packages the code for AWS lambda deployment"
                :depends [clean]
                :task (do (fs/create-dirs "target")
                          (fs/copy (fs/which "bb") "target/bb" {:replace-existing true})
                          (fs/copy "resources/bootstrap" "target/bootstrap" {:replace-existing true})
-                         (fs/zip "runtime_layer.zip" "target" {:root "target"})
+                         (fs/zip layer-file "target" {:root "target"})
                          (fs/delete-tree "target")
                          (fs/create-dirs "target")
                          (shell "bb uberscript target/function.clj -m lambda.main")
-                         (fs/zip "lambda.zip" "target" {:root "target"}))}
+                         (fs/zip lambda-file "target" {:root "target"}))}
          test {:doc "Runs unit tests"
                :extra-paths ["test"]
                :extra-deps {io.github.cognitect-labs/test-runner
@@ -21,6 +24,7 @@
                :task (exec 'cognitect.test-runner.api/test)
                :exec-args {:dirs ["test"]}}
          deploy {:doc "Deploys to AWS using terraform"
+                 :depends [pack]
                  :task (do (shell {:dir "deploy"} "terraform init")
                            (shell {:dir "deploy"} "terraform apply"))}
          nrepl {:doc "Starts an nREPL server on a random free port"
