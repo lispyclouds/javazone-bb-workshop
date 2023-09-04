@@ -1,12 +1,16 @@
+variable "arch" {
+  type = string
+}
+
 locals {
-  lambda_filename = "lambda.zip"
-  lambda_name     = "no-pii"
+  lambda_filename       = "lambda.zip"
+  lambda_name           = "no-pii"
   lambda_layer_filename = "runtime_layer.zip"
   runtimes = [
-    "provided",
+    "provided.al2",
   ]
   architectures = [
-    "x86_64",
+    var.arch,
   ]
 }
 
@@ -45,7 +49,7 @@ resource "aws_lambda_function" "no_pii" {
 
   filename = local.lambda_filename
 
-  runtime = local.runtimes[0]
+  runtime       = local.runtimes.0
   architectures = local.architectures
 
   layers = [
