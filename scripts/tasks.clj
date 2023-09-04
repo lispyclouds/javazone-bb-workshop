@@ -6,6 +6,10 @@
    [babashka.process :as proc]
    [clojure.java.io :as io]))
 
+(def lambda-file "deploy/lambda.zip")
+
+(def layer-file "deploy/runtime_layer.zip")
+
 (defn download
   [arch version]
   (let [filename (format "babashka-%s-linux-%s-static.tar.gz" version arch)
@@ -18,7 +22,7 @@
 
 (defn pack
   [args]
-  (let [{:keys [arch version lambda-file layer-file]} (cli/parse-opts args)]
+  (let [{:keys [arch version]} (cli/parse-opts args)]
     (fs/create-dirs "target")
     (download arch version)
     (fs/copy "resources/bootstrap" "target/bootstrap" {:replace-existing true})
@@ -37,6 +41,12 @@
                "aarch64" "arm64")]
     (proc/shell opts "terraform" "init")
     (proc/shell opts "terraform" "apply" "-var" (str "arch=" arch))))
+
+(defn clean
+  []
+  (fs/delete-tree "target")
+  (fs/delete-if-exists lambda-file)
+  (fs/delete-if-exists layer-file))
 
 (comment
   (download "amd64" "1.3.184"))

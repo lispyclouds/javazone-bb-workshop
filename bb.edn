@@ -1,11 +1,8 @@
 {:paths ["src"]
- :tasks {:requires ([babashka.fs :as fs])
-         :init (do (def lambda-file "deploy/lambda.zip")
-                   (def layer-file "deploy/runtime_layer.zip"))
-         clean {:doc "Cleans the project artifacts"
-                :task (do (fs/delete-tree "target")
-                          (fs/delete-if-exists lambda-file)
-                          (fs/delete-if-exists layer-file))}
+ :tasks {clean {:doc "Cleans the project artifacts"
+                :extra-paths ["scripts"]
+                :requires ([tasks :as t])
+                :task (t/clean)}
          pack {:doc "Packages the code for AWS lambda deployment"
                :extra-paths ["scripts"]
                :requires ([tasks :as t])
@@ -23,7 +20,8 @@
                  :requires ([tasks :as t])
                  :task (t/deploy *command-line-args*)}
          nrepl {:doc "Starts an nREPL server on a random free port"
-                :requires ([babashka.nrepl.server :as srv])
+                :requires ([babashka.nrepl.server :as srv]
+                           [babashka.fs :as fs])
                 :task (let [port (with-open [s (java.net.ServerSocket. 0)]
                                    (.getLocalPort s))
                             port-file ".nrepl-port"]
