@@ -10,9 +10,17 @@
 
 (def layer-file "deploy/runtime_layer.zip")
 
+(def default-arch "aarch64")
+
+(defn latest-version
+  []
+  (:body (http/get "https://raw.githubusercontent.com/babashka/babashka/master/resources/BABASHKA_RELEASED_VERSION")))
+
 (defn download
   [arch version]
-  (let [filename (format "babashka-%s-linux-%s-static.tar.gz" version arch)
+  (let [arch (or arch default-arch)
+        version (or version (latest-version))
+        filename (format "babashka-%s-linux-%s-static.tar.gz" version arch)
         url (format "https://github.com/babashka/babashka/releases/download/v%s/%s" version filename)
         archive "target/bb.tar.gz"]
     (println "Downloading bb from:" url)
@@ -35,6 +43,7 @@
 (defn deploy
   [args]
   (let [{:keys [arch]} (cli/parse-opts args)
+        arch (or arch default-arch)
         opts {:dir "deploy"}
         arch (case arch
                "amd64" "x86_64"
@@ -49,4 +58,6 @@
   (fs/delete-if-exists layer-file))
 
 (comment
-  (download "amd64" "1.3.184"))
+  (download "amd64" "1.3.184")
+
+  (latest-version))

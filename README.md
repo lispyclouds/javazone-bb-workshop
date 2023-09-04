@@ -13,8 +13,8 @@ This builds, tests and deploys a simple AWS Lambda.
 ## Usage
 
 - Run unit tests: `bb test`
-- Clean and build the Lambda: `bb pack --version 1.3.184 --arch amd64`
-- [Optional] deploy to AWS: `bb deploy --version 1.3.184 --arch amd64`
+- Clean and build the Lambda: `bb pack`. Defaults to `--arch=aarch64 --version=latest`.
+- [Optional] deploy to AWS: `bb deploy`. Defaults to `--arch=aarch64 --version=latest`.
 
 ## License
 
