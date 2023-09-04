@@ -21,20 +21,15 @@
              {:body error-body
               :headers {"Content-Type" "application/json"}}))
 
-(defn- request->response
-  [headers request-body handler-fn]
-  (let [decoded-request (json/parse-string request-body true)]
-    (if-let [body (:body decoded-request)]
-      (json/generate-string
-       {:statusCode 200
-        :body (-> body
-                  (json/parse-string true)
-                  (handler-fn headers)
-                  (json/generate-string))})
-      (json/generate-string (handler-fn decoded-request headers)))))
+(defn- handle
+  [context request handler]
+  (-> request
+      (json/parse-string true)
+      (handler context)
+      (json/generate-string)))
 
 (defn init
-  [handler-fn]
+  [handler]
   (let [url (str "http://" (System/getenv "AWS_LAMBDA_RUNTIME_API") "/2018-06-01/runtime/invocation")]
     (loop [{:keys [headers body error]} (next-invocation-request url)]
       (let [request-id (get headers "lambda-runtime-aws-request-id")]
@@ -42,7 +37,7 @@
           (send-error url request-id (str error))
           (throw (Exception. (str error))))
         (try
-          (send-response url request-id (request->response headers body handler-fn))
+          (send-response url request-id (handle headers body handler))
           (catch Exception e
             (send-error url request-id (str e)))))
       (recur (next-invocation-request url)))))
