@@ -1,0 +1,5 @@
+{
+  "event": {
+    "log": "{\"timestamp\":\"2019-09-07T-15:50+00\",\"level\":\"WARN\",\"message\":\"This email: foo@bar.com totally needs to be removed.\"}"
+  }
+}
