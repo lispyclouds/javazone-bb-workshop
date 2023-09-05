@@ -19,8 +19,11 @@
   [event _context]
   (let [log (get-in event [:event :log])
         parsed (json/parse-string log true)
-        msg (get parsed :message)]
-    (clean-all msg)))
+        msg (get parsed :message)
+        cleaned (clean-all msg)
+        parsed (assoc parsed :message cleaned)
+        clean-str (json/generate-string parsed)]
+    (assoc-in event [:event :log] clean-str)))
 
 (defn -main
   [& _]
