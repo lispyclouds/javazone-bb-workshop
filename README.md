@@ -4,6 +4,10 @@ This contains the source code for [Elegant and Maintainable scripting with Cloju
 
 This builds, tests and deploys a simple AWS Lambda.
 
+## Deck and references
+
+Get the deck used in the is talk having all references from [here](https://github.com/lispyclouds/javazone-bb-workshop/files/12520039/JavaZone.Babashka.Workshop.pdf).
+
 ## Requirements
 
 - [Babashka](https://github.com/babashka/babashka#installation), latest recommended
