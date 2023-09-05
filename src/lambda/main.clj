@@ -16,8 +16,11 @@
   (reduce clean s pii-patterns))
 
 (defn handler
-  [{:keys [n1 n2]} _context]
-  {:sum (+ n1 n2)})
+  [event _context]
+  (let [log (get-in event [:event :log])
+        parsed (json/parse-string log true)
+        msg (get parsed :message)]
+    (clean-all msg)))
 
 (defn -main
   [& _]
