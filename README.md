@@ -6,7 +6,7 @@ This builds, tests and deploys a simple AWS Lambda.
 
 ## Deck and references
 
-Get the deck used in the is talk having all references from [here](https://github.com/lispyclouds/javazone-bb-workshop/files/12520039/JavaZone.Babashka.Workshop.pdf).
+Get the deck used in the workshop having all references from [here](https://github.com/lispyclouds/javazone-bb-workshop/files/12520039/JavaZone.Babashka.Workshop.pdf).
 
 ## Requirements
 
@@ -18,7 +18,8 @@ Get the deck used in the is talk having all references from [here](https://githu
 
 - Run unit tests: `bb test`
 - Clean and build the Lambda: `bb pack`. Defaults to `--arch=aarch64 --version=latest`.
-- [Optional] deploy to AWS: `bb deploy`. Defaults to `--arch=aarch64 --version=latest`.
+- [Optional] Deploy to AWS: `bb deploy`. Defaults to `--arch=aarch64 --version=latest`.
+- [Optional] Clean up: `cd deploy && terraform destroy`
 
 ## License
 

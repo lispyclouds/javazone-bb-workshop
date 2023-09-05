@@ -1,5 +1,6 @@
 variable "arch" {
-  type = string
+  type    = string
+  default = "arm64"
 }
 
 locals {
