@@ -31,11 +31,8 @@
 (defn init
   [handler]
   (let [url (str "http://" (System/getenv "AWS_LAMBDA_RUNTIME_API") "/2018-06-01/runtime/invocation")]
-    (loop [{:keys [headers body error]} (next-invocation-request url)]
+    (loop [{:keys [headers body]} (next-invocation-request url)]
       (let [request-id (get headers "lambda-runtime-aws-request-id")]
-        (when error
-          (send-error url request-id (str error))
-          (throw (Exception. (str error))))
         (try
           (send-response url request-id (handle headers body handler))
           (catch Exception e
